@@ -6,23 +6,222 @@
     <title>Rock Paper Scissors Game</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
             text-align: center;
-            margin-top: 50px;
+            background-color: #f5f5f5;
         }
+        
         h1 {
             color: #333;
+            margin-bottom: 30px;
         }
-        p {
-            margin: 20px;
+        
+        .game-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .choices {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        button {
+            padding: 15px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+        }
+        
+        .round-result {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .score {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        
+        .final-result {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 20px;
+            color: #2c3e50;
+        }
+        
+        .reset-btn {
+            margin-top: 20px;
+            background-color: #3498db;
+        }
+        
+        .reset-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .choices-display {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+        }
+        
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <h1>Rock Paper Scissors</h1>
-    <p>This game is played entirely in the console.</p>
-    <p>Right-click anywhere on this page, select "Inspect" or "Inspect Element", and then click on the "Console" tab.</p>
-    
-    <script src="script.js"></script>
+    <div class="game-container">
+        <h1>Rock Paper Scissors</h1>
+        <p>First to 5 points wins the game!</p>
+        
+        <div class="choices">
+            <button id="rock">Rock</button>
+            <button id="paper">Paper</button>
+            <button id="scissors">Scissors</button>
+        </div>
+        
+        <div class="results">
+            <div class="choices-display">
+                <p>Your choice: <span id="player-choice">-</span></p>
+                <p>Computer choice: <span id="computer-choice">-</span></p>
+            </div>
+            <div class="round-result" id="round-result">Choose rock, paper, or scissors to start!</div>
+            <div class="score">Score: You <span id="player-score">0</span> - <span id="computer-score">0</span> Computer</div>
+            <div class="final-result hidden" id="final-result"></div>
+            <button class="reset-btn hidden" id="reset-button">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        let playerScore = 0;
+        let computerScore = 0;
+        const winningScore = 5;
+        const gameActive = true;
+
+        // DOM Elements
+        const rockBtn = document.getElementById('rock');
+        const paperBtn = document.getElementById('paper');
+        const scissorsBtn = document.getElementById('scissors');
+        const playerChoiceDisplay = document.getElementById('player-choice');
+        const computerChoiceDisplay = document.getElementById('computer-choice');
+        const roundResultDisplay = document.getElementById('round-result');
+        const playerScoreDisplay = document.getElementById('player-score');
+        const computerScoreDisplay = document.getElementById('computer-score');
+        const finalResultDisplay = document.getElementById('final-result');
+        const resetButton = document.getElementById('reset-button');
+        const choiceButtons = document.querySelectorAll('.choices button');
+
+        // Get computer's random choice
+        function getComputerChoice() {
+            const choices = ['rock', 'paper', 'scissors'];
+            const randomIndex = Math.floor(Math.random() * 3);
+            return choices[randomIndex];
+        }
+
+        // Play a single round
+        function playRound(playerChoice) {
+            const computerChoice = getComputerChoice();
+            
+            // Update choice displays
+            playerChoiceDisplay.textContent = playerChoice;
+            computerChoiceDisplay.textContent = computerChoice;
+            
+            // Determine winner
+            if (playerChoice === computerChoice) {
+                roundResultDisplay.textContent = "It's a tie!";
+            } else if (
+                (playerChoice === "rock" && computerChoice === "scissors") ||
+                (playerChoice === "paper" && computerChoice === "rock") ||
+                (playerChoice === "scissors" && computerChoice === "paper")
+            ) {
+                roundResultDisplay.textContent = `You win! ${playerChoice} beats ${computerChoice}`;
+                playerScore++;
+                playerScoreDisplay.textContent = playerScore;
+            } else {
+                roundResultDisplay.textContent = `You lose! ${computerChoice} beats ${playerChoice}`;
+                computerScore++;
+                computerScoreDisplay.textContent = computerScore;
+            }
+            
+            // Check if game is over
+            if (playerScore >= winningScore || computerScore >= winningScore) {
+                endGame();
+            }
+        }
+
+        // End the game and display final result
+        function endGame() {
+            // Disable choice buttons
+            choiceButtons.forEach(button => {
+                button.disabled = true;
+            });
+            
+            // Display final result
+            if (playerScore > computerScore) {
+                finalResultDisplay.textContent = `You win the game! Final score: You ${playerScore}, Computer ${computerScore}`;
+            } else {
+                finalResultDisplay.textContent = `Computer wins the game! Final score: Computer ${computerScore}, You ${playerScore}`;
+            }
+            
+            // Show final result and reset button
+            finalResultDisplay.classList.remove('hidden');
+            resetButton.classList.remove('hidden');
+        }
+
+        // Reset the game
+        function resetGame() {
+            // Reset scores
+            playerScore = 0;
+            computerScore = 0;
+            playerScoreDisplay.textContent = '0';
+            computerScoreDisplay.textContent = '0';
+            
+            // Reset displays
+            playerChoiceDisplay.textContent = '-';
+            computerChoiceDisplay.textContent = '-';
+            roundResultDisplay.textContent = 'Choose rock, paper, or scissors to start!';
+            
+            // Hide final result and reset button
+            finalResultDisplay.classList.add('hidden');
+            resetButton.classList.add('hidden');
+            
+            // Re-enable choice buttons
+            choiceButtons.forEach(button => {
+                button.disabled = false;
+            });
+        }
+
+        // Event listeners for buttons
+        rockBtn.addEventListener('click', () => playRound('rock'));
+        paperBtn.addEventListener('click', () => playRound('paper'));
+        scissorsBtn.addEventListener('click', () => playRound('scissors'));
+        resetButton.addEventListener('click', resetGame);
+    </script>
 </body>
 </html>
